@@ -400,9 +400,8 @@ about 215 grams more than those born to smoking mothers.</p>
 <h2>Simulate the Null Distribution</h2>
 <p>Under the null hypothesis <span class="math inline">\(H_0\)</span>,
 we assume that smoking has no real effect on baby weight. If that’s
-true, then the labels “Yes” and “No” (for Smoker) are meaningless — we
-could shuffle them randomly, and any difference in means would just be
-due to chance.</p>
+true, then the labels “Yes” and “No” (for Smoker) are meaningless, and
+any difference in means would just be due to chance.</p>
 <p>So, we’ll simulate that process many times:</p>
 <p>1.- Randomly shuffle the “Smoker” labels.</p>
 <p>2.- Recalculate the mean difference each time.</p>
@@ -440,7 +439,7 @@ p_value</code></pre>
 0.</p>
 <p>This result means that none of the 5,000 simulated mean differences
 were as large as the observed difference of 215 g. It doesn’t mean the
-probability is exactly zero — it just means the p-value is smaller than
+probability is exactly zero; it just means the p-value is smaller than
 the resolution of our simulation (1 / 5000 = 0.0002).</p>
 <p>In other words, <span class="math inline">\(p\text{-value} &lt;
 0.0002\)</span>.</p>
