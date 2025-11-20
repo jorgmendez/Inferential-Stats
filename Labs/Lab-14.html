@@ -360,7 +360,6 @@ Location</h1>
 
 <div id="purpose-of-the-lab" class="section level2">
 <h2>Purpose of the Lab</h2>
-<p>Purpose of the Lab</p>
 <p>In this lab, we study whether the target consumer of a cereal
 (children vs adults) is related to the shelf position where the cereal
 is placed (bottom, middle, top).</p>
@@ -420,8 +419,20 @@ independent.</p>
 <p>Now that we have the contingency table, we use R’s chisq.test()
 function to test whether Age and Shelf location are independent.</p>
 <p>The hypotheses are:</p>
-<p>H₀: Age group and shelf placement are independent</p>
-<p>Hₐ: Age group and shelf placement are not independent</p>
+<p>We test:</p>
+<p><span class="math display">\[
+H_0: \text{Age group and Shelf location are independent}
+\]</span></p>
+<p><span class="math display">\[
+H_A: \text{Age group and Shelf location are not independent}
+\]</span></p>
+<p>The chi-square statistic is computed as</p>
+<p><span class="math display">\[
+\chi^2 = \sum_{\text{all cells}} \frac{(O - E)^2}{E},
+\]</span></p>
+<p>where <span class="math inline">\(O\)</span> is the observed count
+and <span class="math inline">\(E\)</span> is the expected count under
+independence.</p>
 <pre class="r"><code>chisq_test &lt;- chisq.test(tbl)</code></pre>
 <pre><code>## Warning in chisq.test(tbl): Chi-squared approximation may be incorrect</code></pre>
 <pre class="r"><code>chisq_test</code></pre>
@@ -449,6 +460,11 @@ are more than what we would expect by random chance.</p>
 incorrect.”</p>
 <p>This usually happens when some of the expected counts in the table
 are too small. We can look at the expected values directly:</p>
+<p>The expected count for cell <span class="math inline">\((i,j)\)</span> is</p>
+<p><span class="math display">\[
+E_{ij} = \frac{(\text{row total})_i \times (\text{column total})_j}{n}.
+\]</span></p>
+<p>We can look at the expected values directly:</p>
 <pre class="r"><code>chisq_test$expected</code></pre>
 <pre><code>##           
 ##             bottom    middle      top
@@ -480,8 +496,13 @@ reliable answer.</p>
 <p>3.- Recompute the chi-square statistic for each shuffled dataset</p>
 <p>4.- Compare the observed statistic to the permutation distribution to
 get a p-value</p>
+<p>The permutation p-value is estimated as</p>
+<p><span class="math display">\[
+\hat{p} = \frac{\#\{\text{permuted statistics } \ge \text{ observed
+statistic}\}}{\text{number of permutations}}.
+\]</span></p>
 <pre class="r"><code>set.seed(123)
-n_perm &lt;- 5000
+n_perm &lt;- 10000
 perm_stats &lt;- numeric(n_perm)
 
 obs_stat &lt;- chisq_test$statistic
@@ -495,6 +516,40 @@ perm_stats[i] &lt;- suppressWarnings(chisq.test(tbl_perm)$statistic)
 p_value_perm &lt;- mean(perm_stats &gt;= obs_stat)
 p_value_perm</code></pre>
 <pre><code>## [1] 0</code></pre>
+<div id="interpretation-3" class="section level3">
+<h3>Interpretation</h3>
+<p>The permutation p-value was 0, meaning that out of 10,000 shuffled
+datasets, none produced a chi-square statistic as large as the observed
+one. This implies</p>
+<p><span class="math display">\[
+p &lt; \frac{1}{10{,}000} = 0.0001,
+\]</span></p>
+<p>which provides very strong evidence that Age and Shelf location are
+not independent.</p>
+<p>Therefore, we conclude that Age group and Shelf location are not
+independent. Cereals targeted at different age groups tend to be placed
+on different shelves, and this association is far stronger than what
+would be expected by chance alone.</p>
+</div>
+</div>
+<div id="conclusion" class="section level2">
+<h2>Conclusion</h2>
+<p>In this lab, we examined whether Age group and Shelf location are
+independent in the cereal dataset. We began by creating a contingency
+table, which showed clear differences in shelf placement across age
+groups. The chi-square test of independence produced a very small
+p-value, suggesting a strong association, but also generated a warning
+because one expected cell count was below 5.</p>
+<p>To address this limitation, we conducted a permutation test, which
+does not rely on the large-sample assumptions required by the chi-square
+test. After running 10,000 permutations, the permutation p-value was 0,
+meaning that none of the shuffled datasets produced a chi-square
+statistic as large as the observed one, providing extremely strong
+evidence against independence.</p>
+<p>Overall, we conclude that Age group and Shelf location are not
+independent. Cereals targeted to different age groups tend to be placed
+on different shelves, showing a strong and statistically significant
+association.</p>
 </div>
 
 
