@@ -1,0 +1,149 @@
+---
+title: "Cereal Target Consumer and Shelf Location"
+author: "Jorge Mendez"
+date: "2025-11-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Purpose of the Lab
+
+Purpose of the Lab
+
+In this lab, we study whether the target consumer of a cereal (children vs adults) is related to the shelf position where the cereal is placed (bottom, middle, top).
+
+We will:
+
+  - Summarize the relationship between target consumer and shelf   location with a table.
+
+  - Use a chi-square test of independence to see if the variables are related.
+
+  - Look at the expected counts to understand any warnings from R.
+
+  - Perform a permutation test for independence and compare the result with the chi-square test.
+
+```{r}
+library(resampledata3)
+data(Cereals)
+
+```
+
+## (a) Contingency Table: Target Consumer × Shelf Location
+
+First, we create a table that summarizes how many cereals for children and adults are placed on each shelf (bottom, middle, top).
+
+```{r}
+tbl <- table(Cereals$Age, Cereals$Shelf)
+tbl
+
+
+```
+To see the totals for rows and columns:
+```{r}
+addmargins(tbl)
+
+```
+
+### Interpretation
+
+This table shows how cereals are distributed across shelf positions for the different age target groups in the dataset.
+From the counts (and the row/column totals), we can see whether:
+
+   - Certain age groups (younger vs older consumers) have cereals placed more often on a particular shelf, and
+
+   - Whether shelf placement is evenly distributed across age groups or shows a pattern.
+   
+This summary helps us evaluate whether Age and Shelf location are independent.
+
+## (b) Chi-Square Test of Independence
+
+Now that we have the contingency table, we use R’s chisq.test() function to test whether Age and Shelf location are independent.
+
+The hypotheses are:
+
+H₀: Age group and shelf placement are independent
+
+Hₐ: Age group and shelf placement are not independent
+
+```{r}
+chisq_test <- chisq.test(tbl)
+chisq_test
+
+```
+
+### Interpretation
+
+R outputs the chi-square test statistic, degrees of freedom, and the p-value.
+
+  - A large chi-square statistic and
+
+  - A small p-value
+
+provide evidence that Age group and Shelf location are related.
+
+This test tells us whether the differences in counts across shelves are more than what we would expect by random chance.
+
+
+## (c) Expected Counts and Warning Message
+
+R gives the warning: “Chi-squared approximation may be incorrect.”
+
+This usually happens when some of the expected counts in the table are too small.
+We can look at the expected values directly:
+
+
+
+```{r}
+chisq_test$expected
+```
+
+### Interpretation
+
+From the expected table, we see that one of the cells has an expected count below 5:
+
+  - Adult & Bottom shelf → 3.56, which is less than 5
+
+The chi-square test assumes that expected counts should generally be at least 5, or that at least 80% of the cells are ≥ 5.
+
+Because this condition is violated, the chi-square p-value may not be fully reliable.
+This is why we will perform a permutation test in part (d), which does not rely on this assumption.
+
+
+## (d) Permutation Test of Independence
+
+Because the chi-square test gave a warning about small expected counts, we use a permutation test as a non-parametric alternative.
+This test does NOT rely on large expected frequencies, so it gives a more reliable answer.
+
+The steps:
+
+   1.- Compute the observed chi-square statistic
+
+   2.- Shuffle the Age labels many times
+
+   3.- Recompute the chi-square statistic for each shuffled dataset
+
+   4.- Compare the observed statistic to the permutation distribution to get a p-value
+
+
+```{r}
+set.seed(123)
+n_perm <- 5000
+perm_stats <- numeric(n_perm)
+
+obs_stat <- chisq_test$statistic
+
+for (i in 1:n_perm) {
+shuffled_age <- sample(Cereals$Age)
+tbl_perm <- table(shuffled_age, Cereals$Shelf)
+perm_stats[i] <- suppressWarnings(chisq.test(tbl_perm)$statistic)
+}
+
+p_value_perm <- mean(perm_stats >= obs_stat)
+p_value_perm
+
+```
+
